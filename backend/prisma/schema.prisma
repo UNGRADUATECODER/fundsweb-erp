@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -71,8 +70,21 @@ model CustomerEnquiry {
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
 
-  customer   Customer    @relation(fields: [customerId], references: [id])
+  customer   Customer      @relation(fields: [customerId], references: [id])
+  items      EnquiryItem[]
   quotations Quotation[]
+}
+
+model EnquiryItem {
+  id        Int @id @default(autoincrement())
+  enquiryId Int
+  productId Int
+  quantity  Int
+
+  enquiry CustomerEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+
+  @@unique([enquiryId, productId])
 }
 
 model Product {
@@ -87,6 +99,7 @@ model Product {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  enquiryItems   EnquiryItem[]
   quotationItems QuotationItem[]
   orderItems     SalesOrderItem[]
 }
@@ -133,9 +146,9 @@ model SalesOrder {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  quotation  Quotation       @relation(fields: [quotationId], references: [id])
-  customer   Customer        @relation(fields: [customerId], references: [id])
-  createdBy  User            @relation(fields: [createdById], references: [id])
+  quotation  Quotation        @relation(fields: [quotationId], references: [id])
+  customer   Customer         @relation(fields: [customerId], references: [id])
+  createdBy  User             @relation(fields: [createdById], references: [id])
   items      SalesOrderItem[]
   dispatches Dispatch[]
 }
