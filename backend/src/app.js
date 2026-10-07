@@ -1,9 +1,35 @@
 const express = require("express");
 const cors = require("cors");
-const prisma = require("./lib/prisma"); 
+const prisma = require("./lib/prisma");
+const authRoutes = require("./routes/authRoutes");
+const customerRoutes = require("./routes/customerRoutes");
+const enquiryRoutes = require("./routes/enquiryRoutes");
+const productRoutes = require("./routes/productRoutes");
+const {
+  authenticate,
+  authorizeRoles,
+} = require("./middlewares/authMiddleware");
+
 const app=express();
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/enquiries", enquiryRoutes);
+app.use("/api/products", productRoutes);
+
+
+app.get(
+  "/api/protected",
+  authenticate,
+  (req, res) => {
+    res.json({
+      success: true,
+      message: "Protected route accessed successfully",
+      user: req.user,
+    });
+  }
+);
 app.get("/api/db-test",async (_req,res)=>{
     try{
          const result = await prisma.$queryRaw`SELECT NOW()`;
